@@ -16,6 +16,7 @@ import (
 	"gogs.io/gogs/internal/auth/github"
 	"gogs.io/gogs/internal/auth/ldap"
 	"gogs.io/gogs/internal/auth/pam"
+	"gogs.io/gogs/internal/auth/sac"
 	"gogs.io/gogs/internal/auth/smtp"
 	"gogs.io/gogs/internal/conf"
 	"gogs.io/gogs/internal/context"
@@ -57,6 +58,7 @@ var (
 		{auth.Name(auth.SMTP), auth.SMTP},
 		{auth.Name(auth.PAM), auth.PAM},
 		{auth.Name(auth.GitHub), auth.GitHub},
+		{auth.Name(auth.SAC), auth.SAC},
 	}
 	securityProtocols = []dropdownItem{
 		{ldap.SecurityProtocolName(ldap.SecurityProtocolUnencrypted), ldap.SecurityProtocolUnencrypted},
@@ -148,6 +150,14 @@ func NewAuthSourcePost(c *context.Context, f form.Authentication) {
 			SkipVerify:  f.SkipVerify,
 		}
 		hasTLS = true
+	case auth.SAC:
+		config = &sac.Config{
+			PublicUrl:    f.SACPublicUrl,
+			PrivateUrl:   f.SACPrivateUrl,
+			ClientId:     f.SACClientId,
+			ClientSecret: f.SACClientSecret,
+			CallbackUrl:  f.SACCallbackUrl,
+		}
 	default:
 		c.Status(http.StatusBadRequest)
 		return
@@ -245,6 +255,14 @@ func EditAuthSourcePost(c *context.Context, f form.Authentication) {
 		provider = github.NewProvider(&github.Config{
 			APIEndpoint: strings.TrimSuffix(f.GitHubAPIEndpoint, "/") + "/",
 			SkipVerify:  f.SkipVerify,
+		})
+	case auth.SAC:
+		provider = sac.NewProvider(&sac.Config{
+			PublicUrl:    f.SACPublicUrl,
+			PrivateUrl:   f.SACPrivateUrl,
+			ClientId:     f.SACClientId,
+			ClientSecret: f.SACClientSecret,
+			CallbackUrl:  f.SACCallbackUrl,
 		})
 	default:
 		c.Status(http.StatusBadRequest)

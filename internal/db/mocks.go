@@ -219,6 +219,10 @@ func (m *MockUsersStore) Authenticate(username, password string, loginSourceID i
 	return m.MockAuthenticate(username, password, loginSourceID)
 }
 
+func (m *MockUsersStore) SacAuthenticate(code string, loginSourceID int64) (*User, error) {
+	return nil, nil  // Not implemented
+}
+
 func (m *MockUsersStore) Create(username, email string, opts CreateUserOpts) (*User, error) {
 	return m.MockCreate(username, email, opts)
 }

@@ -177,6 +177,31 @@
 							</div>
 						{{end}}
 
+						<!-- SAC -->
+						{{if .Source.IsSAC}}
+							{{ $cfg:=.Source.SAC }}
+							<div class="required field">
+								<label for="sac_public_url">SAC Public URL</label>
+								<input id="sac_public_url" name="sac_public_url" value="{{$cfg.PublicUrl}}" />
+							</div>
+							<div class="required field">
+								<label for="sac_private_url">SAC Private URL</label>
+								<input id="sac_private_url" name="sac_private_url" value="{{$cfg.PrivateUrl}}" />
+							</div>
+							<div class="required field">
+								<label for="sac_client_id">Client ID</label>
+								<input id="sac_client_id" name="sac_client_id" value="{{$cfg.ClientId}}" />
+							</div>
+							<div class="required field">
+								<label for="sac_client_secret">Client Secret</label>
+								<input id="sac_client_secret" name="sac_client_secret" value="{{$cfg.ClientSecret}}" />
+							</div>
+							<div class="required field">
+								<label for="sac_callback_url">Callback URL</label>
+								<input id="sac_callback_url" name="sac_callback_url" value="{{$cfg.CallbackUrl}}" />
+							</div>
+				 		{{end}}
+
 						<div class="inline field {{if not .Source.IsSMTP}}hide{{end}}">
 							<div class="ui checkbox">
 								<label><strong>{{.i18n.Tr "admin.auths.enable_tls"}}</strong></label>

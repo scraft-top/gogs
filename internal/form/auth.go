@@ -11,7 +11,7 @@ import (
 
 type Authentication struct {
 	ID                int64
-	Type              int    `binding:"Range(2,6)"`
+	Type              int    `binding:"Range(2,7)"`
 	Name              string `binding:"Required;MaxSize(30)"`
 	Host              string
 	Port              int
@@ -42,6 +42,11 @@ type Authentication struct {
 	SkipVerify        bool
 	PAMServiceName    string
 	GitHubAPIEndpoint string `form:"github_api_endpoint" binding:"Url"`
+	SACPublicUrl      string
+	SACPrivateUrl     string
+	SACClientId       string
+	SACClientSecret   string
+	SACCallbackUrl    string
 }
 
 func (f *Authentication) Validate(ctx *macaron.Context, errs binding.Errors) binding.Errors {

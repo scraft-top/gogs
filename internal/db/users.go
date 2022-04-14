@@ -34,6 +34,7 @@ type UsersStore interface {
 	// When the "loginSourceID" is positive, it tries to authenticate via given
 	// login source and creates a new user when not yet exists in the database.
 	Authenticate(username, password string, loginSourceID int64) (*User, error)
+	SacAuthenticate(code string, loginSourceID int64) (*User, error)
 	// Create creates a new user and persists to database.
 	// It returns ErrUserAlreadyExist when a user with same name already exists,
 	// or ErrEmailAlreadyUsed if the email has been used by another user.
@@ -158,6 +159,48 @@ func (db *users) Authenticate(login, password string, loginSourceID int64) (*Use
 		Website:     extAccount.Website,
 		Activated:   true,
 		Admin:       extAccount.Admin,
+	})
+}
+
+func (db *users) SacAuthenticate(code string, loginSourceID int64) (*User, error) {
+	source, err := LoginSources.GetByID(loginSourceID)
+	if err != nil {
+		return nil, errors.Wrap(err, "get login source")
+	}
+	if !source.IsActived {
+		return nil, errors.Errorf("login source %d is not activated", source.ID)
+	}
+	if source.Type != auth.SAC {
+		return nil, errors.New("Login source is not SAC")
+	}
+
+	extAccount, err := source.Provider.Authenticate("sacuser", code)
+	if err != nil {
+		return nil, err
+	}
+	// Validate username make sure it satisfies requirement.
+	if binding.AlphaDashDotPattern.MatchString(extAccount.Name) {
+		return nil, fmt.Errorf("invalid pattern for attribute 'username' [%s]: must be valid alpha or numeric or dash(-_) or dot characters", extAccount.Name)
+	}
+
+	query := db.Where("lower_name = ?", extAccount.Name)
+	user := new(User)
+	err = query.First(user).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, errors.Wrap(err, "get user")
+	}
+
+	if err == nil {
+		return user, nil
+	}
+	return Users.Create(extAccount.Name, extAccount.Email, CreateUserOpts{
+		FullName:    extAccount.FullName,
+		LoginSource: loginSourceID,
+		LoginName:   extAccount.Login,
+		Location:    extAccount.Location,
+		Website:     extAccount.Website,
+		Activated:   true,
+		Admin:       false,
 	})
 }
 

@@ -13,6 +13,7 @@ import (
 	log "unknwon.dev/clog/v2"
 
 	"gogs.io/gogs/internal/auth"
+	"gogs.io/gogs/internal/auth/sac"
 	"gogs.io/gogs/internal/conf"
 	"gogs.io/gogs/internal/context"
 	"gogs.io/gogs/internal/db"
@@ -23,6 +24,7 @@ import (
 
 const (
 	LOGIN                    = "user/auth/login"
+	SAC_LOGIN                = "user/auth/sac_login"
 	TWO_FACTOR               = "user/auth/two_factor"
 	TWO_FACTOR_RECOVERY_CODE = "user/auth/two_factor_recovery_code"
 	SIGNUP                   = "user/auth/signup"
@@ -567,4 +569,46 @@ func ResetPasswdPost(c *context.Context) {
 
 	c.Data["IsResetFailed"] = true
 	c.Success(RESET_PASSWORD)
+}
+
+// SacLogin sac登录入口
+func SacLogin(c *context.Context) {
+	// 找到sac认证源
+	loginSources, err := db.LoginSources.List(db.ListLoginSourceOpts{OnlyActivated: true})
+	if err != nil {
+		c.NotFound()
+		return
+	}
+	for _, loginSource := range loginSources {
+		if loginSource.Type == auth.SAC {
+			// 认证
+			code := c.Req.Form.Get("code")
+			if len(code) > 0 {
+				u, err := db.Users.SacAuthenticate(code, loginSource.ID)
+				if err != nil {
+					// 认证失败
+					switch errors.Cause(err).(type) {
+					case auth.ErrBadCredentials:
+						// TODO 提示信息?
+						code = ""
+					default:
+						log.Warn("Auth error: " + err.Error())
+						c.NotFound()
+						return
+					}
+				} else {
+					// 认证成功
+					afterLogin(c, u, false)
+					return
+				}
+			}
+			// 跳转登录
+			loginConfig := loginSource.Provider.Config().(*sac.Config)
+			redirect := loginConfig.CreateLoginUrl()
+			c.RawRedirect(redirect)
+			return
+		}
+	}
+	// 认证源不存在
+	c.NotFound()
 }

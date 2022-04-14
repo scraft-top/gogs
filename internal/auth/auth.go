@@ -21,6 +21,7 @@ const (
 	PAM         // 4
 	DLDAP       // 5
 	GitHub      // 6
+	SAC			// 7
 )
 
 // Name returns the human-readable name for given authentication type.
@@ -31,6 +32,7 @@ func Name(typ Type) string {
 		SMTP:   "SMTP",
 		PAM:    "PAM",
 		GitHub: "GitHub",
+		SAC:    "Scraft Account Center",
 	}[typ]
 }
 

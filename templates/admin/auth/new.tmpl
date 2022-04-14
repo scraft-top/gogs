@@ -164,6 +164,30 @@
 							<input id="github_api_endpoint" name="github_api_endpoint" value="{{.github_api_endpoint}}" placeholder="e.g. https://api.github.com/" />
 						</div>
 
+						<!-- SAC -->
+						<div class="sac field {{if not (eq .type 7)}}{{end}}">
+							<div class="required field">
+								<label for="sac_public_url">SAC Public URL</label>
+								<input id="sac_public_url" name="sac_public_url" value="{{.sac_public_url}}" />
+							</div>
+							<div class="required field">
+								<label for="sac_private_url">SAC Private URL</label>
+								<input id="sac_private_url" name="sac_private_url" value="{{.sac_private_url}}" />
+							</div>
+							<div class="required field">
+								<label for="sac_client_id">Client ID</label>
+								<input id="sac_client_id" name="sac_client_id" value="{{.sac_client_id}}" />
+							</div>
+							<div class="required field">
+								<label for="sac_client_secret">Client Secret</label>
+								<input id="sac_client_secret" name="sac_client_secret" value="{{.sac_client_secret}}" />
+							</div>
+							<div class="required field">
+								<label for="sac_callback_url">Callback URL</label>
+								<input id="sac_callback_url" name="sac_callback_url" value="{{.sac_callback_url}}" />
+							</div>
+						</div>
+
 						<div class="ldap field">
 							<div class="ui checkbox">
 								<label><strong>{{.i18n.Tr "admin.auths.attributes_in_bind"}}</strong></label>

@@ -1070,6 +1070,7 @@ function initAdmin() {
       $(".smtp").hide();
       $(".pam").hide();
       $(".github").hide();
+      $(".sac").hide();
       $(".has-tls").hide();
 
       var authType = $(this).val();
@@ -1090,6 +1091,9 @@ function initAdmin() {
         case "6": //GITHUB
           $(".github").show();
           $(".has-tls").show();
+          break;
+        case "7": // SAC
+          $(".sac").show();
           break;
       }
 
